@@ -2,6 +2,7 @@ package com.example.draughts
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.mutableIntStateOf
@@ -27,6 +28,18 @@ class MainActivity : ComponentActivity(){
             mutableStateListOf(0, 2, 0, 2, 0, 2, 0, 2),
             mutableStateListOf(2, 0, 2, 0, 2, 0, 2, 0),
             )
+    private var selectedBoxList= mutableStateListOf<MutableList<Int>>(
+        mutableStateListOf(0,0,0,0,0,0,0,0),
+        mutableStateListOf(0,0,0,0,0,0,0,0),
+        mutableStateListOf(0,0,0,0,0,0,0,0),
+        mutableStateListOf(0,0,0,0,0,0,0,0),
+        mutableStateListOf(0,0,0,0,0,0,0,0),
+        mutableStateListOf(0,0,0,0,0,0,0,0),
+        mutableStateListOf(0,0,0,0,0,0,0,0),
+        mutableStateListOf(0,0,0,0,0,0,0,0),
+    )
+    private var selectedBoxListOne = mutableStateOf<Pair<Int, Int>?>(null)
+    private var highlightedCells = mutableStateOf(listOf<Pair<Int, Int>>())
 
     private var isMoveDone=false
 
@@ -60,6 +73,11 @@ class MainActivity : ComponentActivity(){
                     Spacer(modifier = Modifier.height(20.dp))
 
                //draughts view
+                    DraughtsView(customBoard, selectedBoxList, highlightedCells.value, )
+                    { i, j ->
+                        moveHandlerHelper(i, j, customBoard, onGoingPlayer, playerTurn)
+
+                    }
                     Spacer(modifier = Modifier.height(32.dp))
 
                     Column(
@@ -133,10 +151,38 @@ class MainActivity : ComponentActivity(){
             }
         }
     }
+    private fun moveHandlerHelper(x: Int, y: Int,
+                                  customBoard: MutableList<MutableList<Int>>,
+                                  onGoingPlayer: MutableState<Int>, playerTurn: MutableState<String>) {
+
+
+    }
+
     private fun movedToSettings() {
         val intent = Intent(this, SettingsActivity::class.java)
         startActivity(intent)
 
+    }
+    private fun initializeBoard(customBoard: MutableList<MutableList<Int>>) {
+        // Initialize game board with pieces
+        customBoard.clear()
+        val emptyRow = MutableList(8) { 0 }
+        customBoard.addAll(List(3) { row -> MutableList(8) { col -> if ((row + col) % 2 == 0) 0 else 1 } })
+        customBoard.addAll(List(2) { emptyRow.toMutableList() })
+        customBoard.addAll(List(3) { row -> MutableList(8) { col -> if ((row + col) % 2 == 0) 2 else 0 } })
+    }
+
+    private fun reset(customBoard: MutableList<MutableList<Int>>,
+                      onGoingPlayer: MutableState<Int>, playerTurn: MutableState<String>) {
+        initializeBoard(customBoard)
+        onGoingPlayer.value = 2
+        playerTurn.value = "Turn: Player 1"
+
+        for (i in 0 until 8) {
+            for (j in 0 until 8) {
+                selectedBoxList[i][j]=0
+            }
+        }
     }
 
 
