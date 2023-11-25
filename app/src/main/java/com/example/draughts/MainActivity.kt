@@ -185,6 +185,28 @@ class MainActivity : ComponentActivity(){
         startActivity(intent)
 
     }
+    private fun isMoveValid(x: Int, y: Int, selectedBoxListOne: Pair<Int, Int>,
+                            customBoard: MutableList<MutableList<Int>>): Boolean {
+        // Get the list of all valid moves for the selectedBoxList piece
+        val validMoves = getAllValidMoves(selectedBoxListOne, customBoard)
+
+        // Check if the target move is in the list of valid moves
+        return Pair(x, y) in validMoves
+    }
+
+
+    private fun reset(customBoard: MutableList<MutableList<Int>>,
+                      onGoingPlayer: MutableState<Int>, playerTurn: MutableState<String>) {
+        initializeBoard(customBoard)
+        onGoingPlayer.value = 2
+        playerTurn.value = "Turn: Player 1"
+
+        for (i in 0 until 8) {
+            for (j in 0 until 8) {
+                selectedBoxList[i][j]=0
+            }
+        }
+    }
 
     private fun switchingTurns(onGoingPlayer: MutableState<Int>) {
 
@@ -198,19 +220,6 @@ class MainActivity : ComponentActivity(){
         customBoard.addAll(List(3) { row -> MutableList(8) { col -> if ((row + col) % 2 == 0) 0 else 1 } })
         customBoard.addAll(List(2) { emptyRow.toMutableList() })
         customBoard.addAll(List(3) { row -> MutableList(8) { col -> if ((row + col) % 2 == 0) 2 else 0 } })
-    }
-
-    private fun reset(customBoard: MutableList<MutableList<Int>>,
-                      onGoingPlayer: MutableState<Int>, playerTurn: MutableState<String>) {
-        initializeBoard(customBoard)
-        onGoingPlayer.value = 2
-        playerTurn.value = "Turn: Player 1"
-
-        for (i in 0 until 8) {
-            for (j in 0 until 8) {
-                selectedBoxList[i][j]=0
-            }
-        }
     }
 
     private fun moveHandlerHelper(x: Int, y: Int,
@@ -259,15 +268,6 @@ class MainActivity : ComponentActivity(){
             return
         }
 
-    }
-
-    private fun isMoveValid(x: Int, y: Int, selectedBoxListOne: Pair<Int, Int>,
-                            customBoard: MutableList<MutableList<Int>>): Boolean {
-        // Get the list of all valid moves for the selectedBoxList piece
-        val validMoves = getAllValidMoves(selectedBoxListOne, customBoard)
-
-        // Check if the target move is in the list of valid moves
-        return Pair(x, y) in validMoves
     }
 
 
@@ -330,6 +330,15 @@ class MainActivity : ComponentActivity(){
 
         return false
     }
+    private fun changingPiece(x: Int, y: Int,
+                              customBoard: MutableList<MutableList<Int>>, player: Int) {
+        customBoard[y][x] = player
+        if ((player == 1 && y == 7) || (player == 2 && y == 0)) {
+            val kingValue = if (player == 1) 3 else 4
+            customBoard[y][x] = kingValue
+        }
+    }
+
 
     private fun movingPiece(x: Int, y: Int, selectedBoxListOne: Pair<Int, Int>,
                             customBoard: MutableList<MutableList<Int>>) {
@@ -401,15 +410,6 @@ class MainActivity : ComponentActivity(){
         }
 
         return additionalCaptureAvailable
-    }
-
-    private fun changingPiece(x: Int, y: Int,
-                              customBoard: MutableList<MutableList<Int>>, player: Int) {
-        customBoard[y][x] = player
-        if ((player == 1 && y == 7) || (player == 2 && y == 0)) {
-            val kingValue = if (player == 1) 3 else 4
-            customBoard[y][x] = kingValue
-        }
     }
 
 

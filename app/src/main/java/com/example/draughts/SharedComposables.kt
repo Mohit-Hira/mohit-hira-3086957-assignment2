@@ -117,6 +117,47 @@ fun DraughtsView(customBoard: MutableList<MutableList<Int>>,
         }
     }
 }
+
+
+
+@Composable
+fun ColorPicker(label: String, value: Float, onValueChange: (Float) -> Unit) {
+    val intValue = (value * 255).toInt() // Convert to integer range (0-255)
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = "$label: $intValue", // Display label with current value
+            color = Color.Gray,
+            fontSize = 12.sp,
+            modifier = Modifier.width(80.dp) // Set a fixed width for the label
+        )
+        Slider(
+            value = value,
+            onValueChange = onValueChange,
+            colors = SliderDefaults.colors(
+                thumbColor = Color.DarkGray, // Color of the thumb
+                activeTrackColor = Color.Black, // Color of the active track
+                inactiveTrackColor = Color.Gray // Color of the inactive track
+            ),
+            modifier = Modifier.padding(horizontal = 5.dp)
+        )
+    }
+//    Text(label, color = Color.Gray,
+//        fontSize = 12.sp, )
+//    Slider(value = value,
+//        onValueChange = onValueChange,
+//        colors = SliderDefaults.colors(
+//            thumbColor = Color.DarkGray, // Color of the thumb (the draggable circle)
+//            activeTrackColor = Color.Black, // Color of the active track
+//            inactiveTrackColor = Color.Gray // Color of the inactive track
+//        ),
+//        modifier = Modifier.padding(horizontal = 5.dp))
+}
+
+
 @Composable
 fun SettingsScreen(sharedPrefHelper: SharedPreferenceHelper) {
     val context = LocalContext.current
@@ -211,43 +252,6 @@ fun SettingsScreen(sharedPrefHelper: SharedPreferenceHelper) {
                 textAlign = TextAlign.Center)
         }
     }
-}
-
-@Composable
-fun ColorPicker(label: String, value: Float, onValueChange: (Float) -> Unit) {
-    val intValue = (value * 255).toInt() // Convert to integer range (0-255)
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Text(
-            text = "$label: $intValue", // Display label with current value
-            color = Color.Gray,
-            fontSize = 12.sp,
-            modifier = Modifier.width(80.dp) // Set a fixed width for the label
-        )
-        Slider(
-            value = value,
-            onValueChange = onValueChange,
-            colors = SliderDefaults.colors(
-                thumbColor = Color.DarkGray, // Color of the thumb
-                activeTrackColor = Color.Black, // Color of the active track
-                inactiveTrackColor = Color.Gray // Color of the inactive track
-            ),
-            modifier = Modifier.padding(horizontal = 5.dp)
-        )
-    }
-//    Text(label, color = Color.Gray,
-//        fontSize = 12.sp, )
-//    Slider(value = value,
-//        onValueChange = onValueChange,
-//        colors = SliderDefaults.colors(
-//            thumbColor = Color.DarkGray, // Color of the thumb (the draggable circle)
-//            activeTrackColor = Color.Black, // Color of the active track
-//            inactiveTrackColor = Color.Gray // Color of the inactive track
-//        ),
-//        modifier = Modifier.padding(horizontal = 5.dp))
 }
 
 
