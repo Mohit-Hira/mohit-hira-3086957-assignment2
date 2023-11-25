@@ -20,12 +20,15 @@ import kotlin.math.floor
 @Composable
 fun DraughtsView(customBoard: MutableList<MutableList<Int>>,
                  selectedPiece: MutableList<MutableList<Int>>,highlightValidMoves: List<Pair<Int, Int>>,
-
+                 preferencesManager: SharedPreferenceHelper,
                  onAttemptMove: (Int, Int) -> Unit) {
     var width by remember { mutableStateOf(0.0f) }
     var height by remember { mutableStateOf(0.0f) }
     var cellWidth by remember { mutableStateOf(0.0f) }
     var cellHeight by remember { mutableStateOf(0.0f) }
+    val boardColor = Color(preferencesManager.getBoardColor(Color.DarkGray.toArgb()))
+    val player1Color = Color(preferencesManager.getPlayer1PieceColor(Color.Black.toArgb()))
+    val player2Color = Color(preferencesManager.getPlayer2PieceColor(Color.White.toArgb()))
 
     Canvas(modifier = Modifier.aspectRatio(1.0f).pointerInput(Unit) {
         detectTapGestures(onTap = {
@@ -42,9 +45,9 @@ fun DraughtsView(customBoard: MutableList<MutableList<Int>>,
         // Draw 8x8 checkerboard
         for (x in 0 until 8) {
             for (y in 0 until 8) {
-                var color = if ((x + y) % 2 == 0) Color.LightGray else Color.DarkGray
+                var color = if ((x + y) % 2 == 0) Color.LightGray else boardColor
                 if(selectedPiece[x][y]==1)
-                    color= Color.Yellow
+                    color=Color.Yellow
                 drawRect(color, Offset(x * cellWidth, y * cellHeight), Size(cellWidth, cellHeight))
             }
         }
@@ -60,10 +63,10 @@ fun DraughtsView(customBoard: MutableList<MutableList<Int>>,
             for (y in 0 until 8) {
                 if (customBoard[x][y] != 0) {
                     val color =
-                        if (customBoard[x][y] == 1) Color.LightGray
-                        else if (customBoard[x][y] == 2) Color.DarkGray
-                        else if (customBoard[x][y] == 3) Color.LightGray
-                        else Color.DarkGray
+                        if (customBoard[x][y] == 1) player1Color
+                        else if (customBoard[x][y] == 2) player2Color
+                        else if (customBoard[x][y] == 3) player1Color
+                        else player2Color
                     drawCircle(
                         color = color,
                         center = Offset(
