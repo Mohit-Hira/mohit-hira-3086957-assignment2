@@ -41,7 +41,7 @@ class MainActivity : ComponentActivity() {
         mutableStateListOf(0,0,0,0,0,0,0,0),
     )
 
-    private var highlightedCells = mutableStateOf(listOf<Pair<Int, Int>>())
+    private var validMovesToGo = mutableStateOf(listOf<Pair<Int, Int>>())
     private var isMoveDone=false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -95,7 +95,7 @@ class MainActivity : ComponentActivity() {
                     )
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    DraughtsView(customBoard, selectedBoxList, highlightedCells.value, sharedPrefHelper)
+                    DraughtsView(customBoard, selectedBoxList, validMovesToGo.value, sharedPrefHelper)
                     { i, j ->
                         moveHandlerHelper(i, j, customBoard, onGoingPlayer, playerTurn)
                         for (x in 0 until 8) {
@@ -194,7 +194,6 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun initializeBoard(customBoard: MutableList<MutableList<Int>>) {
-        // Initialize game board with pieces
         customBoard.clear()
         val emptyRow = MutableList(8) { 0 }
         customBoard.addAll(List(3) { row -> MutableList(8) { col -> if ((row + col) % 2 == 0) 0 else 1 } })
@@ -208,9 +207,9 @@ class MainActivity : ComponentActivity() {
         onGoingPlayer.value = 2
         playerTurn.value = "Turn: Player 1"
 
-        for (i in 0 until 8) {
-            for (j in 0 until 8) {
-                selectedBoxList[i][j]=0
+        for (x in 0 until 8) {
+            for (y in 0 until 8) {
+                selectedBoxList[x][y]=0
             }
         }
     }
@@ -219,35 +218,23 @@ class MainActivity : ComponentActivity() {
                                   customBoard: MutableList<MutableList<Int>>,
                                   onGoingPlayer: MutableState<Int>, playerTurn: MutableState<String>) {
         val piece = customBoard[y][x]
-
         isMoveDone=false
-        // Determine the player of the piece
         val checkPlayer = if (piece in listOf(1, 3)) 1 else 2
 
-        // Check if a piece of the current player is clicked
         if (checkPlayer == onGoingPlayer.value && piece != 0) {
-            // Select the piece and highlight valid moves
             if (selectedBoxListOne.value == Pair(x, y)) {
-//                // Deselect if the same piece is clicked again
-//                selectedBoxListOne.value = null
-//                highlightedCells.value = listOf()
+
             }
             else {
-//                // Select a new piece and highlight valid moves
                 selectedBoxListOne.value = Pair(x, y)
-                highlightedCells.value = getAllValidMoves(Pair(x, y), customBoard)
+                validMovesToGo.value = getAllValidMoves(Pair(x, y), customBoard)
             }
         }
         else{
-//            selectedBoxListOne.value = null
-//            highlightedCells.value = listOf()
 
         }
-        // Check if it's the correct player's turn and the cell clicked is a valid move
         if (selectedBoxListOne.value != null && isMoveValid(x, y, selectedBoxListOne.value!!, customBoard)) {
-//            selectedBoxListOne.value = Pair(x, y)
             movingPiece(x, y, selectedBoxListOne.value!!, customBoard)
-            Log.d("DraughtsGame", "Move made to: $x, $y")
             isMoveDone=true
             switchingTurns(onGoingPlayer)
             if(onGoingPlayer.value==1) {
@@ -257,75 +244,59 @@ class MainActivity : ComponentActivity() {
                 playerTurn.value = "Turn: Player 1"
             }
             selectedBoxListOne.value = null
-            highlightedCells.value = listOf()
+            validMovesToGo.value = listOf()
             return
         }
 
     }
 
-    private fun isMoveValid(x: Int, y: Int, selectedBoxListOne: Pair<Int, Int>,
+    private fun isMoveValid(i: Int, j: Int, selectedBoxListOne: Pair<Int, Int>,
                             customBoard: MutableList<MutableList<Int>>): Boolean {
-        // Get the list of all valid moves for the selectedBoxList piece
         val validMoves = getAllValidMoves(selectedBoxListOne, customBoard)
 
-        // Check if the target move is in the list of valid moves
-        return Pair(x, y) in validMoves
+        return Pair(i, j) in validMoves
     }
 
 
     private fun isMoveValidHelper(x: Int, y: Int, selectedBoxListOne: Pair<Int, Int>,
                                   customBoard: MutableList<MutableList<Int>>): Boolean {
-        val (fromX, fromY) = selectedBoxListOne
+        val (from_x, from_y) = selectedBoxListOne
         if (x !in 0 until 8 || y !in 0 until 8) {
-            // If the move is outside the board, it's not valid
             return false
         }
 
-        val player = customBoard[fromY][fromX]
-        val player_ = if (player == 1 || player == 3) 1 else 2
+        val player = customBoard[from_y][from_x]
+        val playerType = if (player == 1 || player == 3) 1 else 2
         val opponent = if (player == 1 || player == 3) 2 else 1
 
         val targetCell = customBoard[y][x]
 
-        // Check if the target cell is empty
         if (targetCell != 0) return false
 
-        // Calculate distance
-        val dx = x - fromX
-        val dy = y - fromY
-        Log.d("DraughtsGame", "Checking valid move for king at $fromX, $fromY to $x, $y")
+        val distanceX = x - from_x
+        val distanceY = y - from_y
 
-        // King movement logic
         if (player == 3 || player == 4) {
-            Log.d("DraughtsGame", "Moving king at $fromX, $fromY to $x, $y")
 
-            // King can move one space in any direction
-            if (abs(dx) == 1 && abs(dy) == 1) return true
+            if (abs(distanceX) == 1 && abs(distanceY) == 1) return true
 
-            // King capturing move
-            if (abs(dx) == 2 && abs(dy) == 2) {
-                val midX = (fromX + x) / 2
-                val midY = (fromY + y) / 2
-                val midCell = customBoard[midY][midX]
-                return midCell != 0 && (midCell == opponent || midCell == opponent + 2)
-                // Must jump over opponent's piece
+            if (abs(distanceX) == 2 && abs(distanceY) == 2) {
+                val mid_x = (from_x + x) / 2
+                val mid_y = (from_y + y) / 2
+                val midBox = customBoard[mid_y][mid_x]
+                return midBox != 0 && (midBox == opponent || midBox == opponent + 2)
             }
         }
-        // Regular piece movement logic
         else {
-            // Regular move
-            if (abs(dx) == 1 && ((player_ == 1 && dy == 1) || (player_ == 2 && dy == -1))) {
+            if (abs(distanceX) == 1 && ((playerType == 1 && distanceY == 1) || (playerType == 2 && distanceY == -1))) {
                 return true
             }
-            // Regular capturing move
-            if (abs(dx) == 2 && ((player_ == 1 && dy == 2) || (player_ == 2 && dy == -2))) {
-                val midX = (fromX + x) / 2
-                val midY = (fromY + y) / 2
-                val midCell = customBoard[midY][midX]
+            if (abs(distanceX) == 2 && ((playerType == 1 && distanceY == 2) || (playerType == 2 && distanceY == -2))) {
+                val mid_x = (from_x + x) / 2
+                val mid_y = (from_y + y) / 2
+                val midBox = customBoard[mid_y][mid_x]
 
-//                return midCell != 0 && midCell != player_
-                // Check if the middle cell contains an opponent's piece or king
-                return midCell != 0 && (midCell == opponent || midCell == opponent + 2)
+                return midBox != 0 && (midBox == opponent || midBox == opponent + 2)
 
             }
         }
@@ -335,33 +306,33 @@ class MainActivity : ComponentActivity() {
 
     private fun movingPiece(x: Int, y: Int, selectedBoxListOne: Pair<Int, Int>,
                             customBoard: MutableList<MutableList<Int>>) {
-        val (fromX, fromY) = selectedBoxListOne
-        val player = customBoard[fromY][fromX]
-        customBoard[fromY][fromX] = 0
+        val (from_x, from_y) = selectedBoxListOne
+        val player = customBoard[from_y][from_x]
+        customBoard[from_y][from_x] = 0
         if (player == 3 || player == 4) {
-            if (handlingCaptures(fromX, fromY, x, y, customBoard, player)) {
+            if (handlingCaptures(from_x, from_y, x, y, customBoard, player)) {
                 checkingCaptures(x, y, customBoard, player)
             }
         }  else {
-            if (handlingCaptures(fromX, fromY, x, y, customBoard, player)) {
+            if (handlingCaptures(from_x, from_y, x, y, customBoard, player)) {
                 checkingCaptures(x, y, customBoard, player)
             }
         }
         changingPiece(x, y, customBoard, player)
     }
 
-    private fun handlingCaptures(fromX: Int, fromY: Int, toX: Int, toY: Int, customBoard: MutableList<MutableList<Int>>, player: Int): Boolean {
-        var currentX = fromX
-        var currentY = fromY
+    private fun handlingCaptures(from_x: Int, from_y: Int, to_x: Int, to_y: Int,
+                                 customBoard: MutableList<MutableList<Int>>, player: Int): Boolean {
+        var currentX = from_x
+        var currentY = from_y
         var captured = false
 
-        while (currentX != toX || currentY != toY) {
-            val directionX = if (toX > currentX) 1 else -1
-            val directionY = if (toY > currentY) 1 else -1
+        while (currentX != to_x || currentY != to_y) {
+            val directionX = if (to_x > currentX) 1 else -1
+            val directionY = if (to_y > currentY) 1 else -1
             val nextX = currentX + directionX
             val nextY = currentY + directionY
 
-            // Check for capture
             if (customBoard[nextY][nextX] != 0 && customBoard[nextY][nextX] % 2 != player % 2) {
                 customBoard[nextY][nextX] = 0
                 captured = true
@@ -375,29 +346,26 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun checkingCaptures(x: Int, y: Int, customBoard: MutableList<MutableList<Int>>, player: Int): Boolean {
-        val directions = listOf(-2, 2) // Capture moves are two steps away
+        val directions = listOf(-2, 2)
         var additionalCaptureAvailable = false
 
         for (dirY in directions) {
             for (dirX in directions) {
-                val newX = x + dirX
-                val newY = y + dirY
-                val midX = x + dirX / 2
-                val midY = y + dirY / 2
+                val new_x = x + dirX
+                val new_y = y + dirY
+                val mid_x = x + dirX / 2
+                val mid_y = y + dirY / 2
 
-                if (newX in 0 until 8 && newY in 0 until 8 && customBoard[newY][newX] == 0 && customBoard[midY][midX] != 0 && customBoard[midY][midX] % 2 != player % 2) {
-                    // Temporarily make the capture
-                    val capturedPiece = customBoard[midY][midX]
-                    customBoard[midY][midX] = 0
+                if (new_x in 0 until 8 && new_y in 0 until 8 && customBoard[new_y][new_x] == 0 && customBoard[mid_y][mid_x] != 0 && customBoard[mid_y][mid_x] % 2 != player % 2) {
+                    val capturedPiece = customBoard[mid_y][mid_x]
+                    customBoard[mid_y][mid_x] = 0
 
-                    if (handlingCaptures(x, y, newX, newY, customBoard, player)) {
+                    if (handlingCaptures(x, y, new_x, new_y, customBoard, player)) {
                         additionalCaptureAvailable = true
-                        // Recursive call if another capture is made
-                        checkingCaptures(newX, newY, customBoard, player)
+                        checkingCaptures(new_x, new_y, customBoard, player)
                     }
 
-                    // Undo the capture for further exploration
-                    customBoard[midY][midX] = capturedPiece
+                    customBoard[mid_y][mid_x] = capturedPiece
                 }
             }
         }
@@ -424,31 +392,28 @@ class MainActivity : ComponentActivity() {
         val opponent = if(player==1||player==3)2 else 1
         val validMoves = mutableListOf<Pair<Int, Int>>()
 
-        // Regular moves for kings
         if (player == 3 || player == 4) {
             for (dirY in listOf(-1, 1)) {
                 for (dirX in listOf(-1, 1)) {
-                    val newX = x + dirX
-                    val newY = y + dirY
-                    if (isMoveValidHelper(newX, newY, selectedBoxListOne, customBoard)) {
-                        validMoves.add(Pair(newX, newY))
+                    val new_x = x + dirX
+                    val new_y = y + dirY
+                    if (isMoveValidHelper(new_x, new_y, selectedBoxListOne, customBoard)) {
+                        validMoves.add(Pair(new_x, new_y))
                     }
                 }
             }
         }
-        // Regular moves for non-kings
         else {
             val forwardDirection = if (player == 1) 1 else -1
             for (dirX in listOf(-1, 1)) {
-                val newX = x + dirX
-                val newY = y + forwardDirection
-                if (isMoveValidHelper(newX, newY, selectedBoxListOne, customBoard)) {
-                    validMoves.add(Pair(newX, newY))
+                val new_x = x + dirX
+                val new_y = y + forwardDirection
+                if (isMoveValidHelper(new_x, new_y, selectedBoxListOne, customBoard)) {
+                    validMoves.add(Pair(new_x, new_y))
                 }
             }
         }
 
-        // Add capturing moves for both kings and non-kings
         validMoves.addAll(getCaptureMoves(x, y, customBoard, opponent,player, mutableListOf()))
 
         return validMoves.distinct()
@@ -459,44 +424,38 @@ class MainActivity : ComponentActivity() {
                                 opponent: Int,
                                 player: Int,
                                 visited: MutableList<Pair<Int, Int>>): List<Pair<Int, Int>> {
-        val additionalCaptures = mutableListOf<Pair<Int, Int>>()
+        val addCaptures = mutableListOf<Pair<Int, Int>>()
         val isKing = player == 3 || player == 4
 
-        // Set capture directions based on piece type
         val captureDirectionsY = if (isKing) listOf(-2, 2) else if (player == 1) listOf(2) else listOf(-2)
-        val captureDirectionsX = listOf(-2, 2) // Horizontal capture directions are the same for all
+        val captureDirectionsX = listOf(-2, 2)
 
         for (dirY in captureDirectionsY) {
             for (dirX in captureDirectionsX) {
-                val newX = x + dirX
-                val newY = y + dirY
-                val midX = (x + newX) / 2
-                val midY = (y + newY) / 2
+                val new_x = x + dirX
+                val new_y = y + dirY
+                val mid_x = (x + new_x) / 2
+                val mid_y = (y + new_y) / 2
 
-                // Check for valid capture conditions
-                if (newX in 0 until 8 && newY in 0 until 8 &&
-                    customBoard[newY][newX] == 0 && customBoard[midY][midX] != 0 && customBoard[midY][midX] % 2 != player % 2 &&
-                    Pair(newX, newY) !in visited) {
+                if (new_x in 0 until 8 && new_y in 0 until 8 &&
+                    customBoard[new_y][new_x] == 0 && customBoard[mid_y][mid_x] != 0 && customBoard[mid_y][mid_x] % 2 != player % 2 &&
+                    Pair(new_x, new_y) !in visited) {
 
-                    // Store the original piece before capture
-                    val originalPiece = customBoard[midY][midX]
+                    val originalPiece = customBoard[mid_y][mid_x]
 
-                    // Temporarily make the capture
-                    customBoard[midY][midX] = 0
-                    visited.add(Pair(newX, newY))
+                    customBoard[mid_y][mid_x] = 0
+                    visited.add(Pair(new_x, new_y))
 
-                    // Recursively check for further captures from the new position
-                    additionalCaptures.add(Pair(newX, newY))
-                    additionalCaptures.addAll(getCaptureMoves(newX, newY, customBoard, opponent, player, ArrayList(visited)))
+                    addCaptures.add(Pair(new_x, new_y))
+                    addCaptures.addAll(getCaptureMoves(new_x, new_y, customBoard, opponent, player, ArrayList(visited)))
 
-                    // Restore the original piece after exploring further captures
-                    customBoard[midY][midX] = originalPiece
-                    visited.remove(Pair(newX, newY))
+                    customBoard[mid_y][mid_x] = originalPiece
+                    visited.remove(Pair(new_x, new_y))
                 }
             }
         }
 
-        return additionalCaptures.distinct()
+        return addCaptures.distinct()
     }
 
 }

@@ -124,13 +124,6 @@ fun SettingsScreen(sharedPrefHelper: SharedPreferenceHelper) {
     var player1Color by remember { mutableStateOf(Color(sharedPrefHelper.getPlayer1PieceColor(Color.Black.toArgb()))) }
     var player2Color by remember { mutableStateOf(Color(sharedPrefHelper.getPlayer2PieceColor(Color.White.toArgb()))) }
 
-//    val defaultBoardColor = Color.DarkGray
-//    val defaultPlayer1Color = Color.Black
-//    val defaultPlayer2Color = Color.White
-    val defaultBoardColor = Color(sharedPrefHelper.getBoardColor(Color.DarkGray.toArgb()))
-    val defaultPlayer1Color = Color(sharedPrefHelper.getPlayer1PieceColor(Color.Black.toArgb()))
-    val defaultPlayer2Color = Color(sharedPrefHelper.getPlayer2PieceColor(Color.White.toArgb()))
-    // Initialize slider values with default color RGB components
     var redBoard by remember { mutableStateOf(boardColor.red) }
     var greenBoard by remember { mutableStateOf(boardColor.green) }
     var blueBoard by remember { mutableStateOf(boardColor.blue) }
@@ -145,7 +138,6 @@ fun SettingsScreen(sharedPrefHelper: SharedPreferenceHelper) {
 
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp).verticalScroll(scrollState),
-//        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text("Board Color",  color = Color.Gray,
             fontSize = 16.sp, // Adjust font size as needed
@@ -185,7 +177,7 @@ fun SettingsScreen(sharedPrefHelper: SharedPreferenceHelper) {
             sharedPrefHelper.setBoardColor(boardColor_)
             boardColor = Color(boardColor_)
             val pieceColorP1 = Color(redPieceP1, greenPieceP1, bluePieceP1).toArgb()
-            sharedPrefHelper.setBoardColor(pieceColorP1)
+            sharedPrefHelper.setPlayer1PieceColor(pieceColorP1)
             player1Color = Color(pieceColorP1)
             val pieceColorP2 = Color(redPieceP2, greenPieceP2, bluePieceP2).toArgb()
             sharedPrefHelper.setPlayer2PieceColor(pieceColorP2)
@@ -237,16 +229,7 @@ fun ColorPicker(label: String, value: Float, onValueChange: (Float) -> Unit) {
             modifier = Modifier.padding(horizontal = 5.dp)
         )
     }
-//    Text(label, color = Color.Gray,
-//        fontSize = 12.sp, )
-//    Slider(value = value,
-//        onValueChange = onValueChange,
-//        colors = SliderDefaults.colors(
-//            thumbColor = Color.DarkGray, // Color of the thumb (the draggable circle)
-//            activeTrackColor = Color.Black, // Color of the active track
-//            inactiveTrackColor = Color.Gray // Color of the inactive track
-//        ),
-//        modifier = Modifier.padding(horizontal = 5.dp))
+
 }
 
 
