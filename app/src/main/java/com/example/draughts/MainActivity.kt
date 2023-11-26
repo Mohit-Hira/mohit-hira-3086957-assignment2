@@ -14,8 +14,10 @@ import androidx.compose.ui.unit.*
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.text.font.*
 import androidx.compose.ui.text.style.*
+import java.lang.Math.abs
 
-class MainActivity : ComponentActivity(){
+
+class MainActivity : ComponentActivity() {
     private var selectedBoxListOne = mutableStateOf<Pair<Int, Int>?>(null)
 
     private var customBoard= mutableStateListOf<MutableList<Int>>(
@@ -185,28 +187,6 @@ class MainActivity : ComponentActivity(){
         startActivity(intent)
 
     }
-    private fun isMoveValid(x: Int, y: Int, selectedBoxListOne: Pair<Int, Int>,
-                            customBoard: MutableList<MutableList<Int>>): Boolean {
-        // Get the list of all valid moves for the selectedBoxList piece
-        val validMoves = getAllValidMoves(selectedBoxListOne, customBoard)
-
-        // Check if the target move is in the list of valid moves
-        return Pair(x, y) in validMoves
-    }
-
-
-    private fun reset(customBoard: MutableList<MutableList<Int>>,
-                      onGoingPlayer: MutableState<Int>, playerTurn: MutableState<String>) {
-        initializeBoard(customBoard)
-        onGoingPlayer.value = 2
-        playerTurn.value = "Turn: Player 1"
-
-        for (i in 0 until 8) {
-            for (j in 0 until 8) {
-                selectedBoxList[i][j]=0
-            }
-        }
-    }
 
     private fun switchingTurns(onGoingPlayer: MutableState<Int>) {
 
@@ -220,6 +200,19 @@ class MainActivity : ComponentActivity(){
         customBoard.addAll(List(3) { row -> MutableList(8) { col -> if ((row + col) % 2 == 0) 0 else 1 } })
         customBoard.addAll(List(2) { emptyRow.toMutableList() })
         customBoard.addAll(List(3) { row -> MutableList(8) { col -> if ((row + col) % 2 == 0) 2 else 0 } })
+    }
+
+    private fun reset(customBoard: MutableList<MutableList<Int>>,
+                      onGoingPlayer: MutableState<Int>, playerTurn: MutableState<String>) {
+        initializeBoard(customBoard)
+        onGoingPlayer.value = 2
+        playerTurn.value = "Turn: Player 1"
+
+        for (i in 0 until 8) {
+            for (j in 0 until 8) {
+                selectedBoxList[i][j]=0
+            }
+        }
     }
 
     private fun moveHandlerHelper(x: Int, y: Int,
@@ -270,6 +263,15 @@ class MainActivity : ComponentActivity(){
 
     }
 
+    private fun isMoveValid(x: Int, y: Int, selectedBoxListOne: Pair<Int, Int>,
+                            customBoard: MutableList<MutableList<Int>>): Boolean {
+        // Get the list of all valid moves for the selectedBoxList piece
+        val validMoves = getAllValidMoves(selectedBoxListOne, customBoard)
+
+        // Check if the target move is in the list of valid moves
+        return Pair(x, y) in validMoves
+    }
+
 
     private fun isMoveValidHelper(x: Int, y: Int, selectedBoxListOne: Pair<Int, Int>,
                                   customBoard: MutableList<MutableList<Int>>): Boolean {
@@ -298,10 +300,10 @@ class MainActivity : ComponentActivity(){
             Log.d("DraughtsGame", "Moving king at $fromX, $fromY to $x, $y")
 
             // King can move one space in any direction
-            if (Math.abs(dx) == 1 && Math.abs(dy) == 1) return true
+            if (abs(dx) == 1 && abs(dy) == 1) return true
 
             // King capturing move
-            if (Math.abs(dx) == 2 && Math.abs(dy) == 2) {
+            if (abs(dx) == 2 && abs(dy) == 2) {
                 val midX = (fromX + x) / 2
                 val midY = (fromY + y) / 2
                 val midCell = customBoard[midY][midX]
@@ -312,11 +314,11 @@ class MainActivity : ComponentActivity(){
         // Regular piece movement logic
         else {
             // Regular move
-            if (Math.abs(dx) == 1 && ((player_ == 1 && dy == 1) || (player_ == 2 && dy == -1))) {
+            if (abs(dx) == 1 && ((player_ == 1 && dy == 1) || (player_ == 2 && dy == -1))) {
                 return true
             }
             // Regular capturing move
-            if (Math.abs(dx) == 2 && ((player_ == 1 && dy == 2) || (player_ == 2 && dy == -2))) {
+            if (abs(dx) == 2 && ((player_ == 1 && dy == 2) || (player_ == 2 && dy == -2))) {
                 val midX = (fromX + x) / 2
                 val midY = (fromY + y) / 2
                 val midCell = customBoard[midY][midX]
@@ -330,15 +332,6 @@ class MainActivity : ComponentActivity(){
 
         return false
     }
-    private fun changingPiece(x: Int, y: Int,
-                              customBoard: MutableList<MutableList<Int>>, player: Int) {
-        customBoard[y][x] = player
-        if ((player == 1 && y == 7) || (player == 2 && y == 0)) {
-            val kingValue = if (player == 1) 3 else 4
-            customBoard[y][x] = kingValue
-        }
-    }
-
 
     private fun movingPiece(x: Int, y: Int, selectedBoxListOne: Pair<Int, Int>,
                             customBoard: MutableList<MutableList<Int>>) {
@@ -410,6 +403,15 @@ class MainActivity : ComponentActivity(){
         }
 
         return additionalCaptureAvailable
+    }
+
+    private fun changingPiece(x: Int, y: Int,
+                              customBoard: MutableList<MutableList<Int>>, player: Int) {
+        customBoard[y][x] = player
+        if ((player == 1 && y == 7) || (player == 2 && y == 0)) {
+            val kingValue = if (player == 1) 3 else 4
+            customBoard[y][x] = kingValue
+        }
     }
 
 
@@ -498,3 +500,11 @@ class MainActivity : ComponentActivity(){
     }
 
 }
+
+
+
+
+
+
+
+
