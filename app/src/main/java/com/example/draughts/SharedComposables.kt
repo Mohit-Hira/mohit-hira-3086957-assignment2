@@ -182,13 +182,13 @@ fun SettingsScreen(sharedPrefHelper: SharedPreferenceHelper) {
         // Finish button
         Button(onClick = {
             val boardColor_ = Color(redBoard, greenBoard, blueBoard).toArgb()
-            sharedPrefHelper.saveBoardColor(boardColor_)
+            sharedPrefHelper.setBoardColor(boardColor_)
             boardColor = Color(boardColor_)
             val pieceColorP1 = Color(redPieceP1, greenPieceP1, bluePieceP1).toArgb()
-            sharedPrefHelper.savePlayer1PieceColor(pieceColorP1)
+            sharedPrefHelper.setBoardColor(pieceColorP1)
             player1Color = Color(pieceColorP1)
             val pieceColorP2 = Color(redPieceP2, greenPieceP2, bluePieceP2).toArgb()
-            sharedPrefHelper.savePlayer2PieceColor(pieceColorP2)
+            sharedPrefHelper.setPlayer2PieceColor(pieceColorP2)
             player2Color = Color(pieceColorP2)
             if (context is Activity) {
                 val intent = Intent(context, MainActivity::class.java)
