@@ -101,14 +101,14 @@ fun DraughtsView(customBoard: MutableList<MutableList<Int>>,
                     )
                     //for king
                     if (customBoard[x][y] == 3||customBoard[x][y] == 4) {
-                        drawCircle(
-                            color = Color.Red,
-                            center = Offset(
-                                x * cellWidth + cellWidth / 2,
-                                y * cellHeight + cellHeight / 2
-                            ),
-                            radius = cellWidth / 4 * 0.8f
-                        )
+                            drawCircle(
+                                color = Color.Red,
+                                center = Offset(
+                                    y * cellWidth + cellWidth / 2,
+                                    x * cellHeight + cellHeight / 2
+                                ),
+                                radius = cellWidth / 4 * 0.8f
+                            )
                     }
 
                 }
